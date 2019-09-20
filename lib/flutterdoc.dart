@@ -9,7 +9,9 @@ import 'package:dartdoc/src/utils.dart';
 import 'package:yaml/yaml.dart';
 import 'model.dart';
 
-void build() async {
+const dirname = 'flutterdoc';
+
+void _generate() async {
   var exampleExists = await Directory('example').exists();
   if (!exampleExists) {
     print('example not exists');
@@ -17,7 +19,6 @@ void build() async {
   }
 
   // Copy template
-  const dirname = 'flutterdoc';
   await Directory(dirname).create();
   await copyDirectory(
     Directory(
@@ -65,7 +66,7 @@ void build() async {
   }
 
   // Generate examples file
-  var examplesContent = 'const examples = {';
+  var examplesContent = 'final examples = {';
   for (var payload in payloads) {
     for (var item in payload.items) {
       var fileName = payload.name;
@@ -73,7 +74,8 @@ void build() async {
 
       examplesContent =
           'import "example/$fileName.dart" as $fileName;\n' + examplesContent;
-      examplesContent += '"$fileName.$widgetName": $fileName.$widgetName,';
+      examplesContent +=
+          '"$fileName.$widgetName": () => $fileName.$widgetName(),';
     }
   }
   examplesContent += '};';
@@ -87,10 +89,22 @@ void build() async {
       ';';
   await File(path.join(dirname, 'lib/payloads.dart'))
       .writeAsString(payloadsContent);
+}
 
-  // Run build
-  var res =
+void serve() async {
+  _generate();
+
+  var process = await Process.start('flutter', ['run', '-d', 'chrome'],
+      workingDirectory: dirname);
+  stdout.addStream(process.stdout);
+  stderr.addStream(process.stderr);
+}
+
+void build() async {
+  _generate();
+
+  var result =
       await Process.run('flutter', ['build', 'web'], workingDirectory: dirname);
-  print(res.stderr);
-  print(res.stdout);
+  stdout.write(result.stdout);
+  stderr.write(result.stderr);
 }

@@ -42,14 +42,15 @@ class MyHomePage extends StatelessWidget {
                     children: items.map((item) {
                       final source = item['source'] as String;
                       final widgetName = item['name'] as String;
-                      final widget = examples['$fileName.$widgetName'];
+                      final widgetBuilder =
+                          examples['$fileName.$widgetName'] as Function;
 
                       return Column(
                         children: <Widget>[
                           Center(
                             child: Container(
                               padding: EdgeInsets.symmetric(vertical: 20),
-                              child: widget,
+                              child: widgetBuilder(),
                             ),
                           ),
                           Container(
