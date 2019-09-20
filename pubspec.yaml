@@ -12,6 +12,7 @@ dependencies:
   analyzer: ^0.37.0
   dartdoc: ^0.28.5
   yaml: ^2.2.0
+  dart_style: ^1.2.10
 
 dev_dependencies:
   pedantic: ^1.7.0
