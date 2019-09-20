@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_highlight/flutter_highlight.dart';
+import 'package:flutter_highlight/themes/github.dart';
 import 'examples.dart';
 import 'payloads.dart';
 
@@ -55,8 +57,14 @@ class MyHomePage extends StatelessWidget {
                           ),
                           Container(
                             padding: EdgeInsets.symmetric(vertical: 20),
-                            child: Text(source,
-                                style: TextStyle(fontFamily: 'Menlo')),
+                            child: HighlightView(
+                              source,
+                              language: 'dart',
+                              theme: githubTheme,
+                              textStyle: TextStyle(
+                                  fontFamily:
+                                      'SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace'),
+                            ),
                           ),
                         ],
                       );
