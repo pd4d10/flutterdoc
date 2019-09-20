@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:analyzer/dart/analysis/features.dart';
 import 'package:flutterdoc/utils.dart';
@@ -5,20 +6,8 @@ import 'package:path/path.dart' as path;
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:dartdoc/src/utils.dart';
-
-class DocPayload {
-  String name;
-  String description;
-  List<DocItemPayload> items;
-  DocPayload(this.name, this.description, this.items);
-}
-
-class DocItemPayload {
-  String name;
-  String description;
-  String source;
-  DocItemPayload(this.name, this.description, this.source);
-}
+import 'package:yaml/yaml.dart';
+import 'model.dart';
 
 void build() async {
   var exampleExists = await Directory('example').exists();
@@ -27,8 +16,8 @@ void build() async {
     return;
   }
 
+  // Copy template
   const dirname = 'flutterdoc';
-
   await Directory(dirname).create();
   await copyDirectory(
     Directory(
@@ -36,20 +25,28 @@ void build() async {
     Directory(dirname),
   );
 
+  // Add dependency
+  var libName = loadYaml(await File('pubspec.yaml').readAsString())['name'];
+  var pubspec = await File('$dirname/pubspec.yaml').readAsString();
+
+  await File('$dirname/pubspec.yaml').writeAsString(
+    pubspec.replaceFirst(
+        'dependencies:', 'dependencies:\n  $libName:\n    path: ../\n'),
+  );
+
+  // Create example folder soft link
   var docExampleLink = Link(path.join(dirname, 'lib/example'));
   if (!(await docExampleLink.exists())) {
     await docExampleLink.create('../../example');
   }
 
+  // Get meta data from code
   List<DocPayload> payloads = [];
   var entities = Directory('example').listSync(); // TODO: recursive
 
   for (var entity in entities) {
     var payload = DocPayload(
-      path.basename(entity.path),
-      '', // TODO:
-      [],
-    );
+        path.basenameWithoutExtension(entity.path), '', []); // TODO: desc
     payloads.add(payload);
 
     var result = parseFile(
@@ -67,6 +64,31 @@ void build() async {
     });
   }
 
+  // Generate examples file
+  var examplesContent = 'const examples = {';
+  for (var payload in payloads) {
+    for (var item in payload.items) {
+      var fileName = payload.name;
+      var widgetName = item.name;
+
+      examplesContent =
+          'import "example/$fileName.dart" as $fileName;\n' + examplesContent;
+      examplesContent += '"$fileName.$widgetName": $fileName.$widgetName,';
+    }
+  }
+  examplesContent += '};';
+
+  await File(path.join(dirname, 'lib/examples.dart'))
+      .writeAsString(examplesContent);
+
+  // Generate payloads file
+  var payloadsContent = 'const payloads = ' +
+      json.encode(payloads.map((p) => p.toJson()).toList()) +
+      ';';
+  await File(path.join(dirname, 'lib/payloads.dart'))
+      .writeAsString(payloadsContent);
+
+  // Run build
   var res =
       await Process.run('flutter', ['build', 'web'], workingDirectory: dirname);
   print(res.stderr);
