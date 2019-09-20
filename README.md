@@ -1,4 +1,20 @@
-A sample command-line application.
+# Flutterdoc
 
-Created from templates made available by Stagehand under a BSD-style
-[license](https://github.com/dart-lang/stagehand/blob/master/LICENSE).
+[![pub](https://img.shields.io/pub/v/flutterdoc.svg)](https://pub.dev/packages/flutterdoc)
+
+## Installation
+
+```sh
+pub global activate flutterdoc
+```
+
+## Usage
+
+```sh
+cd /path/to/your/widgets/lib
+flutterdoc build
+```
+
+## License
+
+MIT
