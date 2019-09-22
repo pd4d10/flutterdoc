@@ -94,7 +94,7 @@ void _generate() async {
 }
 
 void serve() async {
-  _generate();
+  await _generate();
 
   var process = await Process.start('flutter', ['run', '-d', 'chrome'],
       workingDirectory: dirname);
@@ -103,7 +103,22 @@ void serve() async {
 }
 
 void build() async {
-  _generate();
+  await _generate();
+
+  // Read config
+  var configFile = File('flutterdoc.yaml');
+  if (await configFile.exists()) {
+    var config = loadYaml(await configFile.readAsString());
+
+    if (config['ga_id'] != null) {
+      // Add GA script
+      var file = File(path.join(dirname, 'web/index.html'));
+      var content = await file.readAsString();
+      content = content.replaceFirst(
+          '</body>', getGaScript(config['ga_id']) + '</body>');
+      await file.writeAsString(content);
+    }
+  }
 
   var result =
       await Process.run('flutter', ['build', 'web'], workingDirectory: dirname);
