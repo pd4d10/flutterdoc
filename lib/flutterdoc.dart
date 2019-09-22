@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:analyzer/dart/analysis/features.dart';
 import 'package:dart_style/dart_style.dart';
+import 'package:io/io.dart';
 import 'package:path/path.dart' as path;
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/analysis/utilities.dart';
@@ -22,10 +23,9 @@ void _generate() async {
 
   // Copy template
   await Directory(dirname).create();
-  await copyDirectory(
-    Directory(path
-        .normalize(path.join(Platform.script.path, '../../templates/gallery'))),
-    Directory(dirname),
+  await copyPath(
+    path.normalize(path.join(Platform.script.path, '../../templates/gallery')),
+    dirname,
   );
 
   // Add dependency
