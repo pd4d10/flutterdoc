@@ -13,6 +13,7 @@ dependencies:
   dartdoc: ^0.28.5
   yaml: ^2.2.0
   dart_style: ^1.2.10
+  args: ^1.5.2
 
 dev_dependencies:
   pedantic: ^1.7.0
