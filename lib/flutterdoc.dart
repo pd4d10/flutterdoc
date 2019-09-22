@@ -23,8 +23,8 @@ void _generate() async {
   // Copy template
   await Directory(dirname).create();
   await copyDirectory(
-    Directory(
-        path.normalize(path.join(Platform.script.path, '../../lib/template'))),
+    Directory(path
+        .normalize(path.join(Platform.script.path, '../../templates/gallery'))),
     Directory(dirname),
   );
 
