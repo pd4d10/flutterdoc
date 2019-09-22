@@ -2,13 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:analyzer/dart/analysis/features.dart';
 import 'package:dart_style/dart_style.dart';
-import 'package:flutterdoc/utils.dart';
 import 'package:path/path.dart' as path;
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:dartdoc/src/utils.dart';
 import 'package:yaml/yaml.dart';
-import 'model.dart';
+import 'package:flutterdoc/src/utils.dart';
+import 'package:flutterdoc/src/model.dart';
 
 const dirname = 'flutterdoc';
 final formatter = DartFormatter();
