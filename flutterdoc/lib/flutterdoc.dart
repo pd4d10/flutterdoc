@@ -22,9 +22,9 @@ void _generate() async {
   }
 
   // Clean up
-  try {
+  if (await Directory(_dirname).exists()) {
     await Directory(_dirname).delete(recursive: true);
-  } finally {}
+  }
 
   // Flutter create
   var result = await Process.run('flutter', ['create', _dirname]);
