@@ -1,6 +1,6 @@
 name: flutterdoc
 description: A command line tool to generate gallery for your Flutter widgets.
-version: 0.1.1
+version: 0.1.2
 homepage: https://github.com/bytedance/flutterdoc
 author: Rongjian Zhang <pd4d10@gmail.com>
 

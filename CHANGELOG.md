@@ -1,3 +1,7 @@
+## 0.1.2
+
+- Make it work after publishing
+
 ## 0.1.1
 
 - Google Analytics tracking ID config
