@@ -16,7 +16,6 @@ dependencies:
   args: ^1.5.2
   json_annotation: ^3.0.0
   # stagehand: ^3.3.4
-  io: ^0.3.3
 
 dev_dependencies:
   pedantic: ^1.7.0
