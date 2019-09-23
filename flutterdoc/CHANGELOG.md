@@ -1,3 +1,7 @@
+## 0.1.3
+
+- Handle deletion failure
+
 ## 0.1.2
 
 - Make it work after publishing
