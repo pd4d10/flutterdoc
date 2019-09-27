@@ -4,6 +4,7 @@ import 'package:analyzer/dart/analysis/features.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:flutterdoc/src/template.dart';
 import 'package:path/path.dart' as path;
+import 'package:resource/resource.dart' show Resource;
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:dartdoc/src/utils.dart';
@@ -11,12 +12,12 @@ import 'package:yaml/yaml.dart';
 import 'package:flutterdoc/src/utils.dart';
 import 'package:flutterdoc/src/model.dart';
 
-const configFileName = 'flutterdoc.yaml';
+const _configFileName = 'flutterdoc.yaml';
 final _formatter = DartFormatter();
 
 Future<DocConfig> _readConfig() async {
   // Read config
-  final configFile = File(configFileName);
+  final configFile = File(_configFileName);
   Map<String, dynamic> data = {};
   if (await configFile.exists()) {
     final _yamlMap = loadYaml(await configFile.readAsString());
@@ -131,7 +132,13 @@ dependencies:
       .writeAsString(payloadsContent);
 }
 
-void serve() async {
+Future<void> init() async {
+  var yaml = await Resource("package:flutterdoc/templates/$_configFileName")
+      .readAsString();
+  await File(_configFileName).writeAsString(yaml);
+}
+
+Future<void> serve() async {
   final config = await _readConfig();
   await _generate(config);
 
@@ -141,7 +148,7 @@ void serve() async {
   stderr.addStream(process.stderr);
 }
 
-void build() async {
+Future<void> build() async {
   final config = await _readConfig();
   await _generate(config);
 

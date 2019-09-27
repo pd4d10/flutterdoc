@@ -15,6 +15,7 @@ dependencies:
   dart_style: ^1.2.10
   args: ^1.5.2
   json_annotation: ^3.0.0
+  resource: ^2.1.6
   # stagehand: ^3.3.4
 
 dev_dependencies:

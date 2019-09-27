@@ -1,0 +1,9 @@
+# Folder for your widget examples
+input: flutterdoc
+
+# Folder for generated Flutter project
+# Notice that this value should be snake_case
+output: flutterdoc_gallery
+
+# Google Analytics ID, something like UA-xxxxxxxx-x
+ga_id:
