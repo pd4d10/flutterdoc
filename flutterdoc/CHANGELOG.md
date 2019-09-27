@@ -1,3 +1,8 @@
+## 0.1.5
+
+- Supports input and output folder config
+- Add init command
+
 ## 0.1.4
 
 ## 0.1.3
