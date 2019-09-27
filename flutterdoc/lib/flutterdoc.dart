@@ -11,37 +11,55 @@ import 'package:yaml/yaml.dart';
 import 'package:flutterdoc/src/utils.dart';
 import 'package:flutterdoc/src/model.dart';
 
-const _dirname = 'flutterdoc';
+const configFileName = 'flutterdoc.yaml';
 final _formatter = DartFormatter();
 
-void _generate() async {
-  var exampleExists = await Directory('example').exists();
-  if (!exampleExists) {
-    print('example not exists');
+Future<DocConfig> _readConfig() async {
+  // Read config
+  final configFile = File(configFileName);
+  Map<String, dynamic> data = {};
+  if (await configFile.exists()) {
+    final _yamlMap = loadYaml(await configFile.readAsString());
+    data = {
+      'input': _yamlMap['input'],
+      'output': _yamlMap['output'],
+      'ga_id': _yamlMap['ga_id'],
+    };
+  }
+  return DocConfig.fromJson(data);
+}
+
+void _generate(DocConfig config) async {
+  var inputExists = await Directory(config.input).exists();
+  if (!inputExists) {
+    print('Input folder not exists: ${config.input}');
     return;
   }
 
+  final inputDir = config.input;
+  final outputDir = config.output;
+
   // Clean up
-  if (await Directory(_dirname).exists()) {
-    await Directory(_dirname).delete(recursive: true);
+  if (await Directory(outputDir).exists()) {
+    await Directory(outputDir).delete(recursive: true);
   }
 
   // Flutter create
-  var result = await Process.run('flutter', ['create', _dirname]);
+  var result = await Process.run('flutter', ['create', outputDir]);
   stdout.write(result.stdout);
   stderr.write(result.stderr);
 
   // Remove test folder
-  await Directory(path.join(_dirname, 'test')).delete(recursive: true);
+  await Directory(path.join(outputDir, 'test')).delete(recursive: true);
 
   // Copy templates
   template.forEach((k, v) {
-    File(path.join(_dirname, k)).writeAsStringSync(v);
+    File(path.join(outputDir, k)).writeAsStringSync(v);
   });
 
   // Add dependency
   var libName = loadYaml(await File('pubspec.yaml').readAsString())['name'];
-  var pubspec = await File('$_dirname/pubspec.yaml').readAsString();
+  var pubspec = await File('$outputDir/pubspec.yaml').readAsString();
 
   // Run pub get after dependencies change
   // result =
@@ -49,7 +67,7 @@ void _generate() async {
   // stdout.write(result.stdout);
   // stderr.write(result.stderr);
 
-  await File('$_dirname/pubspec.yaml').writeAsString(
+  await File('$outputDir/pubspec.yaml').writeAsString(
     pubspec.replaceFirst('dependencies:', '''
 dependencies:
   $libName:
@@ -58,14 +76,14 @@ dependencies:
   );
 
   // Create example folder soft link
-  var docExampleLink = Link(path.join(_dirname, 'lib/example'));
-  if (!(await docExampleLink.exists())) {
-    await docExampleLink.create('../../example');
+  var inputLink = Link(path.join(outputDir, 'lib/$inputDir'));
+  if (!(await inputLink.exists())) {
+    await inputLink.create('../../$inputDir');
   }
 
   // Get meta data from code
   List<DocPayload> payloads = [];
-  var entities = Directory('example').listSync(); // TODO: recursive
+  var entities = Directory(inputDir).listSync(); // TODO: recursive
 
   for (var entity in entities) {
     var payload = DocPayload(
@@ -95,53 +113,49 @@ dependencies:
       var widgetName = item.name;
 
       examplesContent =
-          'import "example/$fileName.dart" as $fileName;\n' + examplesContent;
+          'import "$inputDir/$fileName.dart" as $fileName;\n' + examplesContent;
       examplesContent +=
           '"$fileName.$widgetName": () => $fileName.$widgetName(),';
     }
   }
   examplesContent += '};';
 
-  await File(path.join(_dirname, 'lib/examples.dart'))
+  await File(path.join(outputDir, 'lib/examples.dart'))
       .writeAsString(examplesContent);
 
   // Generate payloads file
   var payloadsContent = 'const payloads = ' +
       json.encode(payloads.map((p) => p.toJson()).toList()) +
       ';';
-  await File(path.join(_dirname, 'lib/payloads.dart'))
+  await File(path.join(outputDir, 'lib/payloads.dart'))
       .writeAsString(payloadsContent);
 }
 
 void serve() async {
-  await _generate();
+  final config = await _readConfig();
+  await _generate(config);
 
   var process = await Process.start('flutter', ['run', '-d', 'chrome'],
-      workingDirectory: _dirname);
+      workingDirectory: config.output);
   stdout.addStream(process.stdout);
   stderr.addStream(process.stderr);
 }
 
 void build() async {
-  await _generate();
+  final config = await _readConfig();
+  await _generate(config);
 
-  // Read config
-  var configFile = File('flutterdoc.yaml');
-  if (await configFile.exists()) {
-    var config = loadYaml(await configFile.readAsString());
-
-    if (config['ga_id'] != null) {
-      // Add GA script
-      var file = File(path.join(_dirname, 'web/index.html'));
-      var content = await file.readAsString();
-      content = content.replaceFirst(
-          '</body>', getGaScript(config['ga_id']) + '</body>');
-      await file.writeAsString(content);
-    }
+  if (config.ga_id != null) {
+    // Add GA script
+    var file = File(path.join(config.output, 'web/index.html'));
+    var content = await file.readAsString();
+    content =
+        content.replaceFirst('</body>', getGaScript(config.ga_id) + '</body>');
+    await file.writeAsString(content);
   }
 
   var result = await Process.run('flutter', ['build', 'web'],
-      workingDirectory: _dirname);
+      workingDirectory: config.output);
   stdout.write(result.stdout);
   stderr.write(result.stderr);
 }

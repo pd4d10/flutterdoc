@@ -39,3 +39,17 @@ Map<String, dynamic> _$DocItemPayloadToJson(DocItemPayload instance) =>
       'description': instance.description,
       'source': instance.source,
     };
+
+DocConfig _$DocConfigFromJson(Map<String, dynamic> json) {
+  return DocConfig(
+    input: json['input'] as String ?? 'flutterdoc',
+    output: json['output'] as String ?? 'flutterdoc_gallery',
+    ga_id: json['ga_id'] as String,
+  );
+}
+
+Map<String, dynamic> _$DocConfigToJson(DocConfig instance) => <String, dynamic>{
+      'input': instance.input,
+      'output': instance.output,
+      'ga_id': instance.ga_id,
+    };

@@ -22,3 +22,17 @@ class DocItemPayload {
       _$DocItemPayloadFromJson(map);
   Map<String, dynamic> toJson() => _$DocItemPayloadToJson(this);
 }
+
+@JsonSerializable()
+class DocConfig {
+  @JsonKey(defaultValue: 'flutterdoc')
+  String input;
+  @JsonKey(defaultValue: 'flutterdoc_gallery')
+  String output;
+  @JsonKey()
+  String ga_id;
+  DocConfig({this.input, this.output, this.ga_id});
+  factory DocConfig.fromJson(Map<String, dynamic> map) =>
+      _$DocConfigFromJson(map);
+  Map<String, dynamic> toJson() => _$DocConfigToJson(this);
+}
