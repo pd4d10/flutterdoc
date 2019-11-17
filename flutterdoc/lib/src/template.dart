@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^0.1.2
-  flutter_highlight: ^0.4.0
+  flutter_highlight: ^0.5.0
 
 dev_dependencies:
   flutter_test:
