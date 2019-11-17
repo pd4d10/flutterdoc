@@ -1,3 +1,7 @@
+## 0.1.6
+
+- Upgrade `flutter_highlight` to 0.5.0
+
 ## 0.1.5
 
 - Supports input and output folder config
