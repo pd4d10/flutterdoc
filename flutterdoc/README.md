@@ -5,7 +5,7 @@
 ## Installation
 
 ```sh
-pub global activate flutterdoc
+flutter pub global activate flutterdoc
 ```
 
 ## Usage
